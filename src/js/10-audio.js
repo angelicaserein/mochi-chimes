@@ -3,6 +3,10 @@ const PENT = [0, 2, 4, 7, 9];
 const BPM = 118, STEP = 60 / BPM / 4;
 let AC = null, OUT = null, muted = false, T0 = 0, musicTimer = null, nextStepT = 0, stepI = 0;
 let musicMode = 'off';   // off | wave | shop
+// the single entry point for music; other files must not assign musicMode directly
+function setMusicState(mode, intensity = 0) {
+  musicMode = mode;
+}
 let noiseBuf = null, qCount = 0;
 const slotUse = {};
 

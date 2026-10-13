@@ -389,7 +389,7 @@ function update(raw) {
     stepWorld(raw * (hitstop > 0 ? 0.35 : 1));
     if (phase === 'clearing') {
       clearT -= raw;
-      if (clearT <= 0) { if (finalWin) { phase = 'end'; musicMode = 'off'; showEnd(true); } else openShop(); }
+      if (clearT <= 0) { if (finalWin) { phase = 'end'; setMusicState('off'); showEnd(true); } else openShop(); }
     }
   }
 }

@@ -3,7 +3,7 @@ function show(id, on) { $(id).classList.toggle('show', on); }
 function hideAll() { ['menu', 'pick', 'shop', 'end', 'pause'].forEach(i => show(i, false)); }
 
 function showMenu() {
-  phase = 'menu'; musicMode = 'off'; hideAll(); show('menu', true);
+  phase = 'menu'; setMusicState('off'); hideAll(); show('menu', true);
   $('bestLine').textContent = bestScore ? '最高分：' + bestScore : '';
 }
 function startRun() {
@@ -13,7 +13,7 @@ function startRun() {
   mats = 0; kills = 0; chainBest = 0; runScore = 0; wave = 0;
   P.hp = stats.maxHp; P.x = WW / 2; P.y = WH / 2; P.inv = 0;
   enemies = []; bullets = []; ebullets = []; blasts = []; pending = []; gems = []; parts = []; markers = [];
-  phase = 'pick'; musicMode = 'shop'; hideAll(); show('pick', true);
+  phase = 'pick'; setMusicState('shop'); hideAll(); show('pick', true);
   const box = $('pickCards'); box.innerHTML = ''; demos = [];
   Object.keys(WDEF).forEach(t => {
     const b = weaponCard(t, {});
@@ -62,7 +62,7 @@ function startWave(n) {
   weapons.forEach(w => { w.cd = 0.3; });
   if (n === WAVES) markers.push({ x: WW / 2, y: WH * 0.2, type: 'king', t: 1.4 });
   banner = { text: n === WAVES ? '首领来袭' : '第 ' + n + ' 波', color: '#fff', t: 1.2 };
-  phase = 'wave'; musicMode = 'wave'; hideAll();
+  phase = 'wave'; setMusicState('wave'); hideAll();
 }
 function poofAll() {
   for (const e of enemies) if (!e.dead) { dropGem(e.x, e.y, e.val); confetti(e.x, e.y, e.col, 8, 160); }
@@ -81,7 +81,7 @@ function winRun() {
 }
 function die() {
   if (phase === 'end') return;
-  phase = 'end'; musicMode = 'off'; sfx.fail();
+  phase = 'end'; setMusicState('off'); sfx.fail();
   showEnd(false);
 }
 function showEnd(win) {
@@ -128,7 +128,7 @@ function rollShop() {
   return items;
 }
 function openShop() {
-  phase = 'shop'; musicMode = 'shop'; rerolls = 0;
+  phase = 'shop'; setMusicState('shop'); rerolls = 0;
   shopItems = rollShop();
   hideAll(); show('shop', true);
   renderShop();
