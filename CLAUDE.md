@@ -6,5 +6,5 @@
 - 禁用：fetch/XHR、Worker、eval、iframe、外链资源、剪贴板、定位等（见 device-capabilities.md）
 - 音频用 WebAudio 合成，不新增 mp3/ogg/wav 文件
 - 提交信息：Conventional Commits，前缀英文、描述中文，如 "feat: xxx"
-- 一个分支只改自己负责的文件；改完跑 python tools/xhs-minitool-audit/audit_artifact.py . 并通过
+- 一个分支只改自己负责的文件；改完跑 python tools/xhs-minitool-audit/audit_artifact.py dist 并通过
 - 不要运行 git push、不要改其他分支
