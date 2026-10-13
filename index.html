@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Mochi Chimes</title>
+<title>麻糬钟声</title>
 <style>
-  html,body{margin:0;height:100%;background:#1f1744;overflow:hidden;
+  html,body{margin:0;height:100%;height:100dvh;background:#1f1744;overflow:hidden;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
   canvas{display:block;width:100%;height:100%;touch-action:none}
   .overlay{position:fixed;top:0;right:0;bottom:0;left:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;
-    text-align:center;color:#fff;background:#2b1f66 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='%23ffffff' fill-opacity='.07'%3E%3Ccircle cx='20' cy='20' r='4'/%3E%3Cpath d='M60 50 L63 58 L71 61 L63 64 L60 72 L57 64 L49 61 L57 58 Z'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='.045'%3E%3Ccircle cx='60' cy='12' r='2'/%3E%3Ccircle cx='12' cy='62' r='2'/%3E%3C/g%3E%3C/svg%3E");padding:46px 16px 20px;padding:calc(46px + var(--sat,0px)) calc(16px + var(--sar,0px)) calc(20px + var(--sab,0px)) calc(16px + var(--sal,0px));box-sizing:border-box;
-    overflow-y:auto;touch-action:pan-y;z-index:4}
+    text-align:center;color:#fff;background:#2b1f66 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='%23ffffff' fill-opacity='.07'%3E%3Ccircle cx='20' cy='20' r='4'/%3E%3Cpath d='M60 50 L63 58 L71 61 L63 64 L60 72 L57 64 L49 61 L57 58 Z'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='.045'%3E%3Ccircle cx='60' cy='12' r='2'/%3E%3Ccircle cx='12' cy='62' r='2'/%3E%3C/g%3E%3C/svg%3E");padding:46px 16px 20px;padding:calc(46px + var(--sat,0px) + var(--host-top,0px)) calc(16px + var(--sar,0px)) calc(20px + var(--sab,0px)) calc(16px + var(--sal,0px));box-sizing:border-box;
+    overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;z-index:4}
   .overlay.show{display:flex}
   .box{margin:auto 0;width:100%;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
   @keyframes bob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
@@ -62,7 +62,7 @@
   .stat span{display:block;font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px}
   .stat b{font-size:22px}
   .msg{font-size:15px;font-size:clamp(15px,3.4vw,20px);margin-top:8px;opacity:.95}
-  .topbtn{position:fixed;top:calc(6px + var(--sat,0px));width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);
+  .topbtn{position:fixed;top:calc(6px + var(--sat,0px) + var(--host-top,0px));width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);
     color:#fff;font-size:14px;font-weight:900;z-index:5;padding:0}
   #pauseBtn{right:calc(8px + var(--sar,0px))}
   #mute{right:calc(48px + var(--sar,0px))}
@@ -77,65 +77,106 @@
   @media (min-width:700px){
     h1{font-size:78px}h2{font-size:44px}.tag{font-size:21px}.rules{font-size:17px}.big{font-size:28px}.msg{font-size:20px}
   }
+  @media (max-width:600px){
+    .overlay{padding:calc(54px + var(--sat,0px) + var(--host-top,0px)) calc(12px + var(--sar,0px)) calc(16px + var(--sab,0px)) calc(12px + var(--sal,0px))}
+    .box{width:100%;margin:auto 0;flex:0 0 auto}
+    h1{font-size:clamp(42px,12vw,58px);-webkit-text-stroke:6px #2a1f4d}
+    h2{font-size:clamp(25px,7vw,34px)}
+    #hero{width:min(78vw,320px);margin:0 0 4px}
+    .tag{margin:4px 0 12px}
+    .rules{width:100%;gap:7px;margin-bottom:16px;font-size:clamp(13px,3.8vw,16px)}
+    .rules div{padding:8px 10px;border-radius:14px}
+    .rules i{margin-right:8px}
+    .big{font-size:20px;padding:12px 30px}
+    .topbtn{top:calc(8px + var(--sat,0px) + var(--host-top,0px));width:40px;height:40px}
+    #pauseBtn{right:calc(10px + var(--sar,0px))}
+    #mute{right:calc(58px + var(--sar,0px))}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:10px 0 6px}
+    .cards>*{margin:0;min-width:0;box-sizing:border-box}
+    .card,.card.wide{width:100%;min-width:0;padding:10px 8px;border-radius:18px}
+    .card canvas.demo{width:100%;height:auto;aspect-ratio:280/128;object-fit:contain}
+    .card h3{font-size:clamp(14px,4vw,17px)}
+    .card p,.card .mech{font-size:clamp(11px,3.2vw,13px);overflow-wrap:anywhere}
+    .mtag{font-size:10px}
+    .gemline{font-size:20px}
+    .owned{min-height:44px}
+    .shop-actions{position:sticky;bottom:calc(4px + var(--sab,0px));z-index:2;display:flex;justify-content:center;padding:8px 0 4px;background:linear-gradient(180deg,rgba(43,31,102,0),rgba(43,31,102,.94) 30%)}
+    #goBtn{margin-top:0!important}
+    .stat-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:12px 0}
+    .stat-row>*{margin:0;min-width:0}
+    .stat{padding:10px 8px}
+    .stat span{font-size:10px;letter-spacing:0}
+    .stat b{font-size:20px}
+    #endSub{max-width:34em}
+    #resumeBtn{margin-top:14px!important}
+    .ghost{min-height:42px}
+  }
+  @media (max-width:360px){
+    .overlay{padding-right:calc(9px + var(--sar,0px));padding-left:calc(9px + var(--sal,0px))}
+    .rules{font-size:13px}
+    .card,.card.wide{padding:8px 6px}
+    .card canvas.demo{margin-bottom:4px}
+    .shop-actions{flex-wrap:wrap}
+  }
 </style>
 </head>
 <body>
 <div id="safeProbe" aria-hidden="true"></div>
 <canvas id="c"></canvas>
-<button id="pauseBtn" class="topbtn" aria-label="Pause">II</button>
-<button id="mute" class="topbtn" aria-label="Toggle sound">🔊</button>
+<button id="pauseBtn" class="topbtn" aria-label="暂停">II</button>
+<button id="mute" class="topbtn" aria-label="切换音效">🔊</button>
 
 <div id="menu" class="overlay show">
   <div class="box">
-  <h1>Mochi Chimes</h1>
+  <h1>麻糬钟声</h1>
   <canvas id="hero" width="480" height="150"></canvas>
-  <div class="tag">Aim. Pop. Chain.</div>
+  <div class="tag">瞄准 · 爆破 · 连锁</div>
   <div class="rules">
-    <div class="keys"><i>🕹️</i><span><b>WASD</b> move &nbsp;·&nbsp; <b>Mouse</b> aim<br><small>Guns fire automatically. <b>P</b> / <b>Esc</b> pause</small></span></div>
-    <div><i>🔫</i><span>4 weapons, 4 tricks: ricochet, bowling, chain blasts and magnet</span></div>
-    <div><i>🛒</i><span>Shop between waves. Survive 7 waves, then beat the boss</span></div>
+    <div class="keys"><i>🕹️</i><span><b>WASD</b> 移动 &nbsp;·&nbsp; <b>鼠标</b> 瞄准<br><small>武器会自动射击。按 <b>P</b> / <b>Esc</b> 暂停</small></span></div>
+    <div><i>🔫</i><span>4 种武器，4 种绝技：弹射、保龄球、连锁爆炸与磁力牵引</span></div>
+    <div><i>🛒</i><span>每波结束后逛商店。撑过 7 波，再击败首领</span></div>
   </div>
-  <button class="big" id="startBtn">Play</button>
+  <button class="big" id="startBtn">开始游戏</button>
   <div class="msg" id="bestLine"></div>
 </div></div>
 
 <div id="pick" class="overlay"><div class="box">
-  <h2>Pick your starter</h2>
-  <div class="msg">You can buy more weapons between waves</div>
+  <h2>选择初始武器</h2>
+  <div class="msg">每波结束后都可以购买更多武器</div>
   <div class="cards" id="pickCards"></div>
 </div></div>
 
 <div id="shop" class="overlay"><div class="box">
-  <h2 id="shopTitle">Wave cleared!</h2>
+  <h2 id="shopTitle">本波完成！</h2>
   <div class="gemline" id="shopGems"></div>
   <div class="cards" id="shopCards"></div>
   <div class="msg" id="soldHint" style="display:none;font-weight:800;color:#ffe27a;margin:0 0 4px"></div>
   <div>
-    <button class="ghost" id="rerollBtn">Reroll</button>
+    <button class="ghost" id="rerollBtn">刷新</button>
   </div>
-  <div class="msg">Your weapons</div>
+  <div class="msg">已拥有的武器</div>
   <div class="owned" id="owned"></div>
   <div class="msg" id="shopStats" style="font-size:13px;opacity:.75"></div>
-  <button class="big" id="goBtn" style="margin-top:14px">Go!</button>
+  <div class="shop-actions"><button class="big" id="goBtn" style="margin-top:14px">继续</button></div>
 </div></div>
 
 <div id="end" class="overlay"><div class="box">
   <h2 id="endTitle"></h2>
   <div class="msg" id="endSub"></div>
   <div class="stat-row">
-    <div class="stat"><span>Wave</span><b id="eWave">0</b></div>
-    <div class="stat"><span>Kills</span><b id="eKills">0</b></div>
-    <div class="stat"><span>Best chain</span><b id="eChain">0</b></div>
-    <div class="stat"><span>Score</span><b id="eScore">0</b></div>
-    <div class="stat"><span>Best</span><b id="eBest">0</b></div>
+    <div class="stat"><span>波数</span><b id="eWave">0</b></div>
+    <div class="stat"><span>击败数</span><b id="eKills">0</b></div>
+    <div class="stat"><span>最佳连锁</span><b id="eChain">0</b></div>
+    <div class="stat"><span>得分</span><b id="eScore">0</b></div>
+    <div class="stat"><span>最高分</span><b id="eBest">0</b></div>
   </div>
-  <button class="big" id="againBtn">Play again</button>
+  <button class="big" id="againBtn">再玩一次</button>
 </div></div>
 
 <div id="pause" class="overlay"><div class="box">
-  <h2>Paused</h2>
-  <button class="big" id="resumeBtn" style="margin-top:18px">Resume</button>
-  <button class="ghost" id="quitBtn">Quit run</button>
+  <h2>已暂停</h2>
+  <button class="big" id="resumeBtn" style="margin-top:18px">继续游戏</button>
+  <button class="ghost" id="quitBtn">结束本局</button>
 </div></div>
 
 <script src="./main.js"></script>

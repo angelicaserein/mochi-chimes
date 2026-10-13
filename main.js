@@ -7,7 +7,7 @@ const INK = '#2a1f4d';
 
 /* ================= layout ================= */
 const HUD_H = 62;
-let W = 0, H = 0, dpr = 1, K = 1, OX = 0, OY = 0, WW = 1000, WH = 620;
+let W = 0, H = 0, dpr = 1, K = 1, OX = 0, OY = 0, WW = 1000, WH = 620, HOST_TOP = 0;
 let pattern = null;
 let SAFE = { t: 0, r: 0, b: 0, l: 0 };
 function readSafe() {
@@ -15,22 +15,27 @@ function readSafe() {
   if (!p) return;
   const cs = window.getComputedStyle(p), f = v => Math.max(0, parseFloat(v) || 0);
   SAFE = { t: f(cs.paddingTop), r: f(cs.paddingRight), b: f(cs.paddingBottom), l: f(cs.paddingLeft) };
+  const previewHostBar = new URLSearchParams(window.location.search).get('preview') === 'xhs';
+  HOST_TOP = window.innerWidth < window.innerHeight && (previewHostBar || !!window.xhs) ? 72 : 0;
   const s = document.documentElement.style;
   s.setProperty('--sat', SAFE.t + 'px'); s.setProperty('--sar', SAFE.r + 'px');
   s.setProperty('--sab', SAFE.b + 'px'); s.setProperty('--sal', SAFE.l + 'px');
+  s.setProperty('--host-top', HOST_TOP + 'px');
 }
 function pickWorld() {
-  if (window.innerWidth >= window.innerHeight * 0.95) { WW = 1000; WH = 620; } else { WW = 560; WH = 900; }
+  if (window.innerWidth >= window.innerHeight * 0.95) { WW = 1000; WH = 620; } else { WW = 460; WH = 900; }
 }
 function layout() {
   readSafe();
+  pickWorld();
   dpr = Math.min(window.devicePixelRatio || 1, 2);
   W = window.innerWidth; H = window.innerHeight;
   cv.width = W * dpr; cv.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  K = Math.min((W - 16 - SAFE.l - SAFE.r) / WW, (H - HUD_H - SAFE.t - SAFE.b - 8) / WH);
+  const topInset = SAFE.t + HOST_TOP;
+  K = Math.min((W - 16 - SAFE.l - SAFE.r) / WW, (H - HUD_H - topInset - SAFE.b - 8) / WH);
   OX = SAFE.l + (W - SAFE.l - SAFE.r - WW * K) / 2;
-  OY = SAFE.t + HUD_H + ((H - SAFE.t - SAFE.b - HUD_H) - WH * K) / 2;
+  OY = topInset + HUD_H + ((H - topInset - SAFE.b - HUD_H) - WH * K) / 2;
   try {
     const pc = document.createElement('canvas'); pc.width = pc.height = 160;
     const p = pc.getContext('2d');
@@ -193,17 +198,17 @@ function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch 
 /* ================= data ================= */
 const WAVES = 8, WAVE_DUR = 25;
 const WDEF = {
-  pulse:   { name: 'Pulse Pop',    tag: 'RICOCHET', mech: 'Bounces off walls. Every bounce hits 25% harder.',
-             lv: ['2 bounces per shot', '3 bounces, and pierces 1 enemy'],
+  pulse:   { name: '脉冲爆弹', tag: '弹射', mech: '子弹可在墙壁间弹跳，每次弹跳伤害提高 25%。',
+             lv: ['每发子弹可弹跳 2 次', '可弹跳 3 次，并穿透 1 个敌人'],
              cd: 0.36, dmg: 9, spd: 600, col: '#7be8ff', price: 12 },
-  shotgun: { name: 'Confetti Gun', tag: 'BOWLING', mech: 'Hit enemies fly off like bowling balls and knock over the rest.',
-             lv: ['Launched enemies burst into confetti when they crash', 'Launches twice as hard'],
+  shotgun: { name: '彩纸霰弹枪', tag: '保龄球', mech: '击中的敌人会像保龄球一样飞出，撞倒其他敌人。',
+             lv: ['被击飞的敌人撞击后会炸成彩纸', '击飞力度翻倍'],
              cd: 0.85, dmg: 6, pellets: 5, spread: 0.55, spd: 520, range: 0.42, col: '#ffe27a', price: 16 },
-  chime:   { name: 'Chime Bomb',   tag: 'CHAIN', mech: 'Explodes. Every kill sets off another blast. Chains grow!',
-             lv: ['Bigger and harder blasts', 'ENCORE: the first chain kill pops twice'],
+  chime:   { name: '钟声炸弹', tag: '连锁', mech: '爆炸击败敌人后会引发新的爆炸，连锁不断增强！',
+             lv: ['爆炸范围更大、威力更强', '返场：连锁中的首次击败会引发双重爆炸'],
              cd: 1.15, dmg: 16, spd: 430, R: 64, col: '#ff8fc7', price: 22 },
-  boomer:  { name: 'Boomerang',    tag: 'MAGNET', mech: 'Pulls enemies into a clump while it flies out, cutting both ways.',
-             lv: ['Stronger, wider pull', 'Hovers at the far end and pulls harder'],
+  boomer:  { name: '回旋镖', tag: '磁力', mech: '飞出时会把敌人吸到一起，回程时也能造成伤害。',
+             lv: ['牵引力更强，范围更广', '飞到最远处悬停，并大幅增强牵引力'],
              cd: 1.0, dmg: 11, spd: 380, range: 240, col: '#8ff0a4', price: 18 }
 };
 const DMGM = [1, 1.55, 2.3], CDM = [1, 0.9, 0.8], RM = [1, 1.15, 1.3];
@@ -215,18 +220,18 @@ const ET = {
   king:    { hp: 2200, spd: 46, r: 56, dmg: 12, val: 30, col: '#c9a0ff' }
 };
 const UPS = [
-  { id: 'dmg',   name: 'Sweet Power',  desc: '+12% damage',            cost: 10, icon: 'star',   apply: () => { stats.dmg *= 1.12; } },
-  { id: 'rate',  name: 'Quick Paws',   desc: '+12% fire rate',         cost: 10, icon: 'bolt',   apply: () => { stats.rate *= 1.12; } },
-  { id: 'hp',    name: 'Cozy Heart',   desc: '+20 max HP',             cost: 9,  icon: 'heart',  apply: () => { stats.maxHp += 20; P.hp += 20; } },
-  { id: 'spd',   name: 'Fluffy Boots', desc: '+8% move speed',         cost: 8,  icon: 'boot',   apply: () => { stats.speed *= 1.08; } },
-  { id: 'blast', name: 'Big Pop',      desc: '+20% blast size',        cost: 11, icon: 'ring',   req: 'chime', apply: () => { stats.blast *= 1.2; } },
-  { id: 'chain', name: 'Echo',         desc: 'Chain blasts hit harder and wider', cost: 12, icon: 'echo', req: 'chime', apply: () => { stats.chain += 1; } },
-  { id: 'regen', name: 'Tea Break',    desc: '+0.8 HP per second',     cost: 10, icon: 'cup',    apply: () => { stats.regen += 0.8; } },
-  { id: 'heal',  name: 'Snack',        desc: 'Heal 40 HP',             cost: 6,  icon: 'plus',   apply: () => { P.hp = Math.min(stats.maxHp, P.hp + 40); } },
-  { id: 'bank',  name: 'Bank Shot',    desc: 'Pulse Pop: +1 bounce',   cost: 11, icon: 'bounce', req: 'pulse',   apply: () => { stats.bounce += 1; } },
-  { id: 'heavy', name: 'Heavy Hitter', desc: 'Confetti Gun: launched enemies fly 40% harder', cost: 11, icon: 'bowl', req: 'shotgun', apply: () => { stats.launch *= 1.4; } },
-  { id: 'grav',  name: 'Gravity',      desc: 'Boomerang: +40% pull',   cost: 11, icon: 'swirl',  req: 'boomer',  apply: () => { stats.pull *= 1.4; } },
-  { id: 'mag',   name: 'Magnet',       desc: '+50% pickup range',      cost: 7,  icon: 'magnet', apply: () => { stats.magnet *= 1.5; } }
+  { id: 'dmg',   name: '甜蜜火力', desc: '伤害提高 12%',            cost: 10, icon: 'star',   apply: () => { stats.dmg *= 1.12; } },
+  { id: 'rate',  name: '疾速爪爪', desc: '射速提高 12%',            cost: 10, icon: 'bolt',   apply: () => { stats.rate *= 1.12; } },
+  { id: 'hp',    name: '暖心守护', desc: '最大生命值提高 20',        cost: 9,  icon: 'heart',  apply: () => { stats.maxHp += 20; P.hp += 20; } },
+  { id: 'spd',   name: '蓬松靴子', desc: '移动速度提高 8%',          cost: 8,  icon: 'boot',   apply: () => { stats.speed *= 1.08; } },
+  { id: 'blast', name: '爆炸升级', desc: '爆炸范围扩大 20%',         cost: 11, icon: 'ring',   req: 'chime', apply: () => { stats.blast *= 1.2; } },
+  { id: 'chain', name: '回声',     desc: '连锁爆炸的伤害和范围提高', cost: 12, icon: 'echo',   req: 'chime', apply: () => { stats.chain += 1; } },
+  { id: 'regen', name: '茶歇时光', desc: '每秒恢复 0.8 点生命值',    cost: 10, icon: 'cup',    apply: () => { stats.regen += 0.8; } },
+  { id: 'heal',  name: '能量点心', desc: '恢复 40 点生命值',         cost: 6,  icon: 'plus',   apply: () => { P.hp = Math.min(stats.maxHp, P.hp + 40); } },
+  { id: 'bank',  name: '弹墙一击', desc: '脉冲爆弹：额外弹跳 1 次', cost: 11, icon: 'bounce', req: 'pulse',   apply: () => { stats.bounce += 1; } },
+  { id: 'heavy', name: '重击手',   desc: '彩纸霰弹枪：击飞力度提高 40%', cost: 11, icon: 'bowl', req: 'shotgun', apply: () => { stats.launch *= 1.4; } },
+  { id: 'grav',  name: '引力增强', desc: '回旋镖：牵引力提高 40%',  cost: 11, icon: 'swirl',  req: 'boomer',  apply: () => { stats.pull *= 1.4; } },
+  { id: 'mag',   name: '磁力增强', desc: '拾取范围扩大 50%',        cost: 7,  icon: 'magnet', apply: () => { stats.magnet *= 1.5; } }
 ];
 
 /* ================= state ================= */
@@ -264,7 +269,7 @@ async function loadBest() {
     const d = r && r.data ? JSON.parse(r.data) : null;
     if (d && d.score > bestScore) {
       bestScore = d.score;
-      if (phase === 'menu') $('bestLine').textContent = 'Best score: ' + bestScore;
+      if (phase === 'menu') $('bestLine').textContent = '最高分：' + bestScore;
     }
   } catch (e) {}
 }
@@ -428,7 +433,7 @@ function hideAll() { ['menu', 'pick', 'shop', 'end', 'pause'].forEach(i => show(
 
 function showMenu() {
   phase = 'menu'; musicMode = 'off'; hideAll(); show('menu', true);
-  $('bestLine').textContent = bestScore ? 'Best score: ' + bestScore : '';
+  $('bestLine').textContent = bestScore ? '最高分：' + bestScore : '';
 }
 function startRun() {
   initAudio();
@@ -485,7 +490,7 @@ function startWave(n) {
   if (n > 1) P.hp = Math.min(stats.maxHp, P.hp + 25);
   weapons.forEach(w => { w.cd = 0.3; });
   if (n === WAVES) markers.push({ x: WW / 2, y: WH * 0.2, type: 'king', t: 1.4 });
-  banner = { text: n === WAVES ? 'BOSS WAVE' : 'WAVE ' + n, color: '#fff', t: 1.2 };
+  banner = { text: n === WAVES ? '首领来袭' : '第 ' + n + ' 波', color: '#fff', t: 1.2 };
   phase = 'wave'; musicMode = 'wave'; hideAll();
 }
 function poofAll() {
@@ -495,12 +500,12 @@ function poofAll() {
 }
 function endWave() {
   phase = 'clearing'; clearT = 1.5; poofAll();
-  banner = { text: 'WAVE CLEAR!', color: '#ffe27a', t: 1.3 };
+  banner = { text: '本波完成！', color: '#ffe27a', t: 1.3 };
   sfx.clear();
 }
 function winRun() {
   finalWin = true; phase = 'clearing'; clearT = 2.2; poofAll();
-  banner = { text: 'VICTORY!', color: '#ffe27a', t: 2 };
+  banner = { text: '胜利！', color: '#ffe27a', t: 2 };
   sfx.clear(); sfx.hyper(); buzz(80);
 }
 function die() {
@@ -513,8 +518,8 @@ function showEnd(win) {
   runScore = score;
   if (score > bestScore) bestScore = score;
   saveBest();
-  $('endTitle').textContent = win ? 'You did it!' : 'Oh no!';
-  $('endSub').textContent = win ? 'The King Blob has been popped. What a symphony!' : 'You fell on wave ' + wave + '. Every run is different, try another weapon!';
+  $('endTitle').textContent = win ? '太棒了！' : '哎呀！';
+  $('endSub').textContent = win ? '果冻之王被击败了！真是一场精彩的交响乐！' : '你在第 ' + wave + ' 波倒下了。每局体验都不同，换把武器再试试吧！';
   $('eWave').textContent = wave; $('eKills').textContent = kills; $('eChain').textContent = chainBest;
   $('eScore').textContent = score; $('eBest').textContent = bestScore;
   hideAll(); show('end', true);
@@ -526,11 +531,11 @@ function weaponItem(t) {
   const d = WDEF[t], own = weapons.find(w => w.type === t && w.lvl < 3);
   const base = d.price * (1 + 0.3 * (wave - 1));
   if (own) {
-    return { id: 'w' + t, kind: 'weapon', icon: t, wt: t, name: d.name, desc: 'Level up',
-      text: '<b>Level ' + own.lvl + ' → ' + (own.lvl + 1) + '</b><br>' + d.lv[own.lvl - 1] + '<br><span style="opacity:.7">+ more damage, faster fire</span>',
+    return { id: 'w' + t, kind: 'weapon', icon: t, wt: t, name: d.name, desc: '升级',
+      text: '<b>' + own.lvl + ' 级 → ' + (own.lvl + 1) + ' 级</b><br>' + d.lv[own.lvl - 1] + '<br><span style="opacity:.7">伤害更高，射速更快</span>',
       cost: Math.round(base * (0.9 + 0.7 * own.lvl)), apply: () => { own.lvl++; } };
   }
-  return { id: 'w' + t, kind: 'weapon', icon: t, wt: t, name: d.name, desc: 'NEW', text: d.mech, cost: Math.round(base),
+  return { id: 'w' + t, kind: 'weapon', icon: t, wt: t, name: d.name, desc: '新武器', text: d.mech, cost: Math.round(base),
     apply: () => { weapons.push({ type: t, lvl: 1, cd: 0.3 }); } };
 }
 function upItem(u) {
@@ -558,7 +563,7 @@ function openShop() {
   renderShop();
 }
 function renderShop() {
-  $('shopTitle').textContent = 'Wave ' + wave + ' cleared!';
+  $('shopTitle').textContent = '第 ' + wave + ' 波完成！';
   $('shopGems').textContent = '◆ ' + mats;
   const box = $('shopCards'); box.innerHTML = '';
   demos = [];
@@ -576,11 +581,11 @@ function renderShop() {
     box.appendChild(b);
   });
   const rc = 3 + 2 * rerolls + (wave - 1);
-  $('rerollBtn').textContent = 'Reroll (◆ ' + rc + ')';
+  $('rerollBtn').textContent = '刷新（◆ ' + rc + '）';
   $('rerollBtn').disabled = mats < rc;
   const allSold = shopItems.every(it => it.sold), sh = $('soldHint');
   sh.style.display = allSold ? 'block' : 'none';
-  sh.textContent = allSold ? (mats >= rc ? 'Sold out! Hit Reroll for new items \u2193' : 'Sold out, and not enough \u25c6 to reroll') : '';
+  sh.textContent = allSold ? (mats >= rc ? '商品已售罄！点击“刷新”获取新商品 ↓' : '商品已售罄，◆ 不足，无法刷新') : '';
   $('rerollBtn').classList.toggle('hot', allSold && mats >= rc);
   const own = $('owned'); own.innerHTML = '';
   weapons.forEach(w => {
@@ -589,8 +594,8 @@ function renderShop() {
     drawIcon(d.querySelector('canvas').getContext('2d'), w.type, 28, 28, 22);
     own.appendChild(d);
   });
-  $('shopStats').textContent = 'HP ' + Math.ceil(P.hp) + '/' + stats.maxHp + '  ·  Damage x' + stats.dmg.toFixed(2) + '  ·  Fire rate x' + stats.rate.toFixed(2);
-  $('goBtn').textContent = wave + 1 === WAVES ? 'Face the boss!' : 'Start wave ' + (wave + 1);
+  $('shopStats').textContent = '生命值 ' + Math.ceil(P.hp) + '/' + stats.maxHp + '  ·  伤害 ×' + stats.dmg.toFixed(2) + '  ·  射速 ×' + stats.rate.toFixed(2);
+  $('goBtn').textContent = wave + 1 === WAVES ? '迎战首领！' : '开始第 ' + (wave + 1) + ' 波';
 }
 function buy(i) {
   const it = shopItems[i];
@@ -641,9 +646,9 @@ function killEnemy(e, info) {
   let n = streak;
   if (info && info.blast) {
     chainN++; chainT = 0.9; if (chainN > chainBest) chainBest = chainN;
-    if (chainN === 5) banner = { text: 'NICE!', color: '#8ff0a4', t: 0.8 };
-    if (chainN === 10) { banner = { text: 'BIG CHAIN!', color: '#ffffff', t: 1.1 }; sfx.hyper(); buzz(40); hitstop = 0.5; shake = Math.max(shake, 6); }
-    if (chainN === 20) { banner = { text: 'LEGENDARY!', color: '#ffe27a', t: 1.3 }; sfx.bonus(); buzz(60); hitstop = 0.6; shake = Math.max(shake, 10); }
+    if (chainN === 5) banner = { text: '漂亮！', color: '#8ff0a4', t: 0.8 };
+    if (chainN === 10) { banner = { text: '超长连锁！', color: '#ffffff', t: 1.1 }; sfx.hyper(); buzz(40); hitstop = 0.5; shake = Math.max(shake, 6); }
+    if (chainN === 20) { banner = { text: '传奇连锁！', color: '#ffe27a', t: 1.3 }; sfx.bonus(); buzz(60); hitstop = 0.6; shake = Math.max(shake, 10); }
     if (info.depth < 12) {
       const pc = { t: 0.07, x: e.x, y: e.y, R: info.R * (0.78 + 0.03 * stats.chain), dmg: info.dmg * (0.9 + 0.05 * stats.chain), depth: info.depth + 1 };
       pending.push(pc);
@@ -793,7 +798,7 @@ function stepWorld(dt) {
       swarmDone = true;
       const side = Math.random() < 0.5 ? 40 : WW - 40;
       for (let i = 0; i < 9; i++) markers.push({ x: side, y: WH * (0.12 + 0.76 * i / 8), type: 'zippy', t: 0.9 });
-      banner = { text: 'SWARM!', color: '#7be8ff', t: 1 };
+      banner = { text: '敌潮来袭！', color: '#7be8ff', t: 1 };
     }
   }
   for (let i = markers.length - 1; i >= 0; i--) {
@@ -801,7 +806,7 @@ function stepWorld(dt) {
     if (m.t <= 0) {
       const e = makeEnemy(m.type, m.x, m.y);
       enemies.push(e); confetti(m.x, m.y, e.col, 6, 120);
-      if (m.type === 'king') { sfx.hyper(); shake = 8; banner = { text: 'KING BLOB', color: '#c9a0ff', t: 1.4 }; }
+      if (m.type === 'king') { sfx.hyper(); shake = 8; banner = { text: '果冻之王', color: '#c9a0ff', t: 1.4 }; }
       markers.splice(i, 1);
     }
   }
@@ -1246,8 +1251,8 @@ function drawStick(s, label) {
 
 function drawHUD() {
   const W0 = W, H0 = H;
-  W = W0 - SAFE.l - SAFE.r; H = H0 - SAFE.t - SAFE.b;
-  ctx.save(); ctx.translate(SAFE.l, SAFE.t);
+  W = W0 - SAFE.l - SAFE.r; H = H0 - SAFE.t - HOST_TOP - SAFE.b;
+  ctx.save(); ctx.translate(SAFE.l, SAFE.t + HOST_TOP);
   const pad = 12, bw = Math.min(190, W * 0.4), bx = pad + 28;
   // hp
   ctx.fillStyle = INK; rrC(ctx, bx - 3, 7, bw + 6, 26, 13); ctx.fill();
@@ -1272,7 +1277,7 @@ function drawHUD() {
   ctx.restore();
   // wave + timer
   ctx.textAlign = 'left'; ctx.font = '900 14px system-ui, sans-serif';
-  otext(ctx, wave === WAVES ? 'BOSS' : 'WAVE ' + wave + '/' + (WAVES - 1), pad, 51, '#fff', 4);
+  otext(ctx, wave === WAVES ? '首领' : '第 ' + wave + ' 波', pad, 51, '#fff', 4);
   if (waveDur !== Infinity) {
     const x0 = pad + 94, w0 = W - x0 - pad, fr = clamp(waveT / waveDur, 0, 1);
     ctx.fillStyle = INK; rrC(ctx, x0 - 2, 44, w0 + 4, 14, 7); ctx.fill();
@@ -1295,18 +1300,18 @@ function drawHUD() {
     ctx.save(); ctx.translate(W / 2, HUD_H + (king ? 40 : 28)); ctx.scale(s, s);
     ctx.globalAlpha = Math.min(1, chainT / 0.3);
     ctx.font = '900 28px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineJoin = 'round'; ctx.lineWidth = 9; ctx.strokeStyle = INK; ctx.strokeText('CHAIN x' + chainN, 0, 0);
-    ctx.lineWidth = 5; ctx.strokeStyle = '#ff8fc7'; ctx.strokeText('CHAIN x' + chainN, 0, 0);
-    ctx.fillStyle = '#fff'; ctx.fillText('CHAIN x' + chainN, 0, 0);
+    ctx.lineJoin = 'round'; ctx.lineWidth = 9; ctx.strokeStyle = INK; ctx.strokeText('连锁 ×' + chainN, 0, 0);
+    ctx.lineWidth = 5; ctx.strokeStyle = '#ff8fc7'; ctx.strokeText('连锁 ×' + chainN, 0, 0);
+    ctx.fillStyle = '#fff'; ctx.fillText('连锁 ×' + chainN, 0, 0);
     ctx.restore();
   }
   if (wave === 1 && waveT < 7 && phase === 'wave') {
     ctx.globalAlpha = 0.9 + Math.sin(tShift * 4) * 0.1;
     ctx.font = '800 ' + Math.round(clamp(W / 26, 12, 16)) + 'px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (I.touch) {
-      otext(ctx, 'Left thumb: move  ·  Right thumb: aim', W / 2, H - 34, '#fff', 4);
-      otext(ctx, 'Your guns fire automatically', W / 2, H - 14, '#fff', 4);
-    } else otext(ctx, 'WASD: move  ·  Mouse: aim  ·  Guns fire automatically', W / 2, H - 22, '#fff', 4);
+      otext(ctx, '左侧摇杆：移动  ·  右侧摇杆：瞄准', W / 2, H - 34, '#fff', 4);
+      otext(ctx, '武器会自动射击', W / 2, H - 14, '#fff', 4);
+    } else otext(ctx, 'WASD：移动  ·  鼠标：瞄准  ·  武器自动射击', W / 2, H - 22, '#fff', 4);
     ctx.globalAlpha = 1;
   }
   ctx.restore(); W = W0; H = H0;
@@ -1354,7 +1359,7 @@ function drawDemo(c, type, time) {
       if (t < e.t) mblob(c, e.x, e.y, 10, '#ff9ccf');
       else { n++; if (t < e.t + 0.4) dring(c, e.x, e.y, e.R, (t - e.t) / 0.4, '#ff8fc7'); }
     }
-    if (n >= 2) dlabel(c, 'CHAIN x' + n, 206, 26);
+    if (n >= 2) dlabel(c, '连锁 ×' + n, 206, 26);
   } else if (type === 'pulse') {
     const pts = [[34, 98], [118, 14], [204, 98]], segs = [], DUR = 1.4;
     let tot = 0;
