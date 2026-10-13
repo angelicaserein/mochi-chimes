@@ -454,7 +454,7 @@ function weaponCard(t, o) {
   const d = WDEF[t], b = document.createElement('button');
   b.className = 'card wide' + (o.cls || '');
   b.style.setProperty('--c', d.col);
-  b.innerHTML = '<canvas class="demo" width="280" height="128"></canvas><h3>' + d.name + '</h3><div class="mtag">' + d.tag + '</div>' +
+  b.innerHTML = '<div class="shop-visual"><canvas class="demo" width="280" height="128"></canvas></div><h3>' + d.name + '</h3><div class="mtag">' + d.tag + '</div>' +
     '<p class="mech">' + (o.text || d.mech) + '</p>' + (o.cost !== undefined ? '<div class="cost">◆ ' + o.cost + '</div>' : '');
   const cvd = b.querySelector('canvas');
   demos.push({ c: cvd.getContext('2d'), el: cvd, type: t });
@@ -573,8 +573,8 @@ function renderShop() {
     if (it.wt) b = weaponCard(it.wt, { cls, text: it.text, cost: it.cost });
     else {
       b = document.createElement('button');
-      b.className = 'card' + cls;
-      b.innerHTML = '<canvas width="64" height="64"></canvas><h3>' + it.name + '</h3><p>' + it.desc + '</p><div class="cost">◆ ' + it.cost + '</div>';
+      b.className = 'card shop-item' + cls;
+      b.innerHTML = '<div class="shop-visual"><canvas width="64" height="64"></canvas></div><h3>' + it.name + '</h3><p>' + it.desc + '</p><div class="cost">◆ ' + it.cost + '</div>';
       drawIcon(b.querySelector('canvas').getContext('2d'), it.icon, 32, 32, 26);
     }
     b.addEventListener('click', () => buy(i));

@@ -49,6 +49,16 @@
   .card.off{opacity:.45;cursor:not-allowed}
   .card.off:hover{transform:none;border-color:rgba(255,255,255,.18)}
   .card.sold{visibility:hidden}
+  #shop .box{padding-bottom:88px}
+  #shopCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:640px;margin:10px auto 6px;align-items:stretch}
+  #shopCards>.card{box-sizing:border-box;width:100%;height:310px;min-width:0;margin:0;padding:10px 8px;display:flex;flex-direction:column}
+  #shopCards .shop-visual{height:96px;flex:0 0 96px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;overflow:hidden}
+  #shopCards .shop-visual canvas{width:64px;height:64px;margin:0}
+  #shopCards .shop-visual canvas.demo{width:min(100%,200px);height:auto;margin:0;aspect-ratio:280/128;object-fit:contain;border-radius:14px;background:rgba(0,0,0,.25)}
+  #shopCards .card p,#shopCards .card .mech{flex:1 1 auto;min-height:4.1em;margin:0;overflow:hidden}
+  #shopCards .card .cost{margin-top:auto}
+  .shop-actions{position:fixed;left:0;right:0;bottom:calc(4px + var(--sab,0px));z-index:6;display:flex;justify-content:center;padding:8px 0 4px;background:linear-gradient(180deg,rgba(43,31,102,0),rgba(43,31,102,.94) 30%)}
+  #shop #goBtn{margin-top:0!important}
   .ghost.hot{animation:pulse 1s ease-in-out infinite;background:#ffe27a;color:#2a1f4d;box-shadow:0 0 0 3px #2a1f4d,0 0 18px rgba(255,226,122,.7)}
   .owned{display:flex;justify-content:center;flex-wrap:wrap;margin:2px 0 0;min-height:50px}
   .owned>*{margin:4px}
@@ -94,14 +104,16 @@
     .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:10px 0 6px}
     .cards>*{margin:0;min-width:0;box-sizing:border-box}
     .card,.card.wide{width:100%;min-width:0;padding:10px 8px;border-radius:18px}
+    #shopCards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    #shopCards>.card{height:310px;padding:10px 8px}
+    #shopCards .shop-visual{height:88px;flex-basis:88px}
+    #shopCards .shop-visual canvas.demo{width:100%}
     .card canvas.demo{width:100%;height:auto;aspect-ratio:280/128;object-fit:contain}
     .card h3{font-size:clamp(14px,4vw,17px)}
     .card p,.card .mech{font-size:clamp(11px,3.2vw,13px);overflow-wrap:anywhere}
     .mtag{font-size:10px}
     .gemline{font-size:20px}
     .owned{min-height:44px}
-    .shop-actions{position:sticky;bottom:calc(4px + var(--sab,0px));z-index:2;display:flex;justify-content:center;padding:8px 0 4px;background:linear-gradient(180deg,rgba(43,31,102,0),rgba(43,31,102,.94) 30%)}
-    #goBtn{margin-top:0!important}
     .stat-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:12px 0}
     .stat-row>*{margin:0;min-width:0}
     .stat{padding:10px 8px}
@@ -116,7 +128,6 @@
     .rules{font-size:13px}
     .card,.card.wide{padding:8px 6px}
     .card canvas.demo{margin-bottom:4px}
-    .shop-actions{flex-wrap:wrap}
   }
 </style>
 </head>
